@@ -51,7 +51,7 @@ pip install -r requirements.txt
 Run Script
 
 ```bash
-python find_team.py
+python scripts/find_team.py
 ```
 
 ## Top Contributors

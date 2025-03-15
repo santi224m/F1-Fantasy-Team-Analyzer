@@ -1,13 +1,19 @@
+import os
 from itertools import combinations, product
 
 from bs4 import BeautifulSoup
 
 if __name__ == "__main__":
+    cwd = os.getcwd()
+    if 'scripts' in cwd:
+        base_path = '../data/'
+    else:
+        base_path = 'data/'
     print("Calculating all combinations...")
     drivers = {}
 
     idx = 0
-    with open("drivers_html.txt", 'r') as html:
+    with open(f"{base_path}drivers_html.txt", 'r') as html:
         soup = BeautifulSoup(html.read(), features="html.parser")
 
     # Iterate through drivers
@@ -28,7 +34,7 @@ if __name__ == "__main__":
         drivers[idx] = (driver_name, driver_points, drive_price)
         idx += 1
 
-    with open("constructors_html.txt", 'r') as html:
+    with open(f"{base_path}constructors_html.txt", 'r') as html:
         soup = BeautifulSoup(html.read(), features="html.parser")
 
     constructors = {}
