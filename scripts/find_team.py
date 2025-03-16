@@ -1,6 +1,6 @@
-from sys import argv
 from os import getcwd
 from itertools import combinations, product
+from contextlib import nullcontext
 
 from bs4 import BeautifulSoup
 
@@ -76,21 +76,21 @@ def find_top_team(*, VERBOSE=False):
     driver_combinations = list(combinations(driver_ids, 5))
     constructor_combinations = list(combinations(constructor_ids, 2))
     teams = list(product(driver_combinations, constructor_combinations))
-    if VERBOSE:
-        print(f"Total possible combinations: {len(teams):,}")
 
     # ---------------------------------------------------------------------------- #
     #                             CALCULATE TEAM STATS                             #
     # ---------------------------------------------------------------------------- #
     valid_rosters = []
-    with Progress(
+    context_manager = Progress(
         TextColumn("[bold grey100]Finding best team...", justify="right"),
         BarColumn(bar_width=None),
         "[progress.description]{task.completed:,}/{task.total:,} combinations",
         "•",
         TimeRemainingColumn(),
-        ) as progress:
-        task1 = progress.add_task("[grey100]Comparing Rosters...", total=len(teams))
+        ) if VERBOSE else nullcontext()
+    with context_manager as progress:
+        if VERBOSE:
+            task1 = progress.add_task("[grey100]Comparing Rosters...", total=len(teams))
         for team in teams:
             roster = Roster()
 
@@ -106,13 +106,13 @@ def find_top_team(*, VERBOSE=False):
             if roster.cost <= COST_CAP:
                 valid_rosters.append(roster)
 
-            progress.update(task1, advance=1)
+            if VERBOSE:
+                progress.update(task1, advance=1)
 
     top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)[0]
     return top_team
 
 if __name__ == "__main__":
-    verbose = True if '--verbose' in set(argv) else False
-    top_team = find_top_team(VERBOSE=verbose)
+    top_team = find_top_team(VERBOSE=True)
     print()
     top_team.print_table()
