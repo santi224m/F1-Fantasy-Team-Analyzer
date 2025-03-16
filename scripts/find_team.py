@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 from utils.Driver import Driver
 from utils.Constructor import Constructor
+from utils.Roster import Roster
 
 def find_top_team(*, VERBOSE=False):
     base_path = '../data/' if 'scripts' in getcwd() else 'data/'
@@ -73,35 +74,26 @@ def find_top_team(*, VERBOSE=False):
     # ---------------------------------------------------------------------------- #
     #                             CALCULATE TEAM STATS                             #
     # ---------------------------------------------------------------------------- #
-    results = []
+    valid_rosters = []
     for team in teams:
-        total_cost = 0
-        total_points = 0
+        roster = Roster()
 
-        roster = []
-
-        # Calculate drivers cost
+        # Add drivers to roster
         for driver_id in team[0]:
-            total_cost += drivers[driver_id].price
-            total_points += drivers[driver_id].points
-            roster.append(drivers[driver_id])
+            roster.add_driver(drivers[driver_id])
 
-        # Calculate constructors cost
+        # Add constructors to roster
         for constructor_id in team[1]:
-            total_cost += constructors[constructor_id].price
-            total_points += constructors[constructor_id].points
-            roster.append(constructors[constructor_id])
+            roster.add_constructor(constructors[constructor_id])
 
         # Ensure total cost is under cost cap
-        if total_cost <= COST_CAP:
-            results.append((roster, total_cost, total_points))
+        if roster.cost <= COST_CAP:
+            valid_rosters.append(roster)
 
-    # Print top team
-    top_team = sorted(results, key=lambda r: r[2], reverse=True)[0]
+    top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)[0]
     return top_team    
 
 if __name__ == "__main__":
     verbose = True if '--verbose' in set(argv) else False
     top_team = find_top_team(VERBOSE=verbose)
-    if verbose:
-        print(top_team)
+    top_team.print_table()
