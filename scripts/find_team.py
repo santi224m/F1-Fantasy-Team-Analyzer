@@ -1,19 +1,18 @@
 import os
+import sys
 from itertools import combinations, product
 
 from bs4 import BeautifulSoup
 
-if __name__ == "__main__":
-    cwd = os.getcwd()
-    if 'scripts' in cwd:
-        base_path = '../data/'
-    else:
-        base_path = 'data/'
-
-    print("Calculating all combinations...")
+def find_top_team(*, VERBOSE=False):
+    base_path = '../data/' if 'scripts' in os.getcwd() else 'data/'
     drivers = {}
-
     idx = 0
+    COST_CAP = 100.0
+
+    # ---------------------------------------------------------------------------- #
+    #                               PARSE DRIVER DATA                              #
+    # ---------------------------------------------------------------------------- #
     with open(f"{base_path}drivers_html.txt", 'r') as html:
         soup = BeautifulSoup(html.read(), features="html.parser")
 
@@ -23,7 +22,6 @@ if __name__ == "__main__":
         img_tag = player_li.find('img')
         if (img_tag):
             driver_name = img_tag.get('alt')
-
         try:
             driver_points = int(player_li.find_all('div', {"class": "si-player__stats-nums"})[1].find('span').get_text().strip().split()[0])
         except:
@@ -35,6 +33,9 @@ if __name__ == "__main__":
         drivers[idx] = (driver_name, driver_points, drive_price)
         idx += 1
 
+    # ---------------------------------------------------------------------------- #
+    #                            PARSE CONSTRUCTOR DATA                            #
+    # ---------------------------------------------------------------------------- #
     with open(f"{base_path}constructors_html.txt", 'r') as html:
         soup = BeautifulSoup(html.read(), features="html.parser")
 
@@ -54,17 +55,21 @@ if __name__ == "__main__":
         constructors[idx] = (constructor_name, constructor_pts, constructor_price)
         idx += 1
 
-    # Create combination of all possible teams
+    # ---------------------------------------------------------------------------- #
+    #                   CREATE COMBINATIONS OF ALL POSSIBLE TEAMS                  #
+    # ---------------------------------------------------------------------------- #
     driver_ids = [id for id in drivers.keys()]
     constructor_ids = [id for id in constructors.keys()]
 
     driver_combinations = list(combinations(driver_ids, 5))
     constructor_combinations = list(combinations(constructor_ids, 2))
     teams = list(product(driver_combinations, constructor_combinations))
-    print(f"Total possible combinations: {len(teams):,}")
+    if VERBOSE:
+        print(f"Total possible combinations: {len(teams):,}")
 
-    # Iterate through all teams
-    COST_CAP = 100.0
+    # ---------------------------------------------------------------------------- #
+    #                             CALCULATE TEAM STATS                             #
+    # ---------------------------------------------------------------------------- #
     results = []
     for team in teams:
         total_cost = 0
@@ -93,4 +98,12 @@ if __name__ == "__main__":
         if total_cost <= COST_CAP:
             results.append((roster, total_cost, total_points))
 
-    print(sorted(results, key=lambda r: r[2], reverse=True)[0])
+    # Print top team
+    top_team = sorted(results, key=lambda r: r[2], reverse=True)[0]
+    return top_team    
+
+if __name__ == "__main__":
+    verbose = True if '--verbose' in set(sys.argv) else False
+    top_team = find_top_team(VERBOSE=verbose)
+    if verbose:
+        print(top_team)
