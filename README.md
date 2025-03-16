@@ -13,7 +13,7 @@
   <h3 align="center">F1 Fantasy Team Analyzer</h3>
 
   <p align="center">
-    Some Python scripts I wrote to determine the best F1 Fantasy team by comparing all possible combinations.
+    Some Python scripts I wrote to determine the best <a href="https://fantasy.formula1.com/en/create-team">F1 Fantasy</a> team by comparing all possible combinations.
     <br />
     <br />
     <a href="https://github.com/santi224m/F1-Fantasy-Team-Analyzer/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
