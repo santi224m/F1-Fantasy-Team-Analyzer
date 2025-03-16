@@ -4,6 +4,14 @@ from itertools import combinations, product
 
 from bs4 import BeautifulSoup
 
+# from rich.progress import Progress
+from rich.progress import (
+    BarColumn,
+    Progress,
+    TextColumn,
+    TimeRemainingColumn,
+)
+
 from utils.Driver import Driver
 from utils.Constructor import Constructor
 from utils.Roster import Roster
@@ -75,25 +83,36 @@ def find_top_team(*, VERBOSE=False):
     #                             CALCULATE TEAM STATS                             #
     # ---------------------------------------------------------------------------- #
     valid_rosters = []
-    for team in teams:
-        roster = Roster()
+    with Progress(
+        TextColumn("[bold grey100]Finding best team...", justify="right"),
+        BarColumn(bar_width=None),
+        "[progress.description]{task.completed:,}/{task.total:,} combinations",
+        "•",
+        TimeRemainingColumn(),
+        ) as progress:
+        task1 = progress.add_task("[grey100]Comparing Rosters...", total=len(teams))
+        for team in teams:
+            roster = Roster()
 
-        # Add drivers to roster
-        for driver_id in team[0]:
-            roster.add_driver(drivers[driver_id])
+            # Add drivers to roster
+            for driver_id in team[0]:
+                roster.add_driver(drivers[driver_id])
 
-        # Add constructors to roster
-        for constructor_id in team[1]:
-            roster.add_constructor(constructors[constructor_id])
+            # Add constructors to roster
+            for constructor_id in team[1]:
+                roster.add_constructor(constructors[constructor_id])
 
-        # Ensure total cost is under cost cap
-        if roster.cost <= COST_CAP:
-            valid_rosters.append(roster)
+            # Ensure total cost is under cost cap
+            if roster.cost <= COST_CAP:
+                valid_rosters.append(roster)
+
+            progress.update(task1, advance=1)
 
     top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)[0]
-    return top_team    
+    return top_team
 
 if __name__ == "__main__":
     verbose = True if '--verbose' in set(argv) else False
     top_team = find_top_team(VERBOSE=verbose)
+    print()
     top_team.print_table()
