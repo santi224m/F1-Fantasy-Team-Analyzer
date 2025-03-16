@@ -9,6 +9,7 @@ if __name__ == "__main__":
         base_path = '../data/'
     else:
         base_path = 'data/'
+
     print("Calculating all combinations...")
     drivers = {}
 
@@ -59,8 +60,8 @@ if __name__ == "__main__":
 
     driver_combinations = list(combinations(driver_ids, 5))
     constructor_combinations = list(combinations(constructor_ids, 2))
-    boost_combinations = list(combinations([0,1,2,3,4], 2))
-    teams = list(product(driver_combinations, constructor_combinations, boost_combinations))
+    teams = list(product(driver_combinations, constructor_combinations))
+    print(f"Total possible combinations: {len(teams):,}")
 
     # Iterate through all teams
     COST_CAP = 100.0
@@ -71,7 +72,6 @@ if __name__ == "__main__":
         constructors_cost = 0
         total_points = 0
 
-        boosted_drivers = team[2]
         roster = []
 
         # Calculate drivers cost
@@ -91,23 +91,6 @@ if __name__ == "__main__":
         # Ensure total cost is under cost cap
         total_cost = drivers_cost + constructors_cost
         if total_cost <= COST_CAP:
-            # Boosted drivers option 1
-            boosted_points_1 = drivers[team[0][boosted_drivers[0]]][1]
-            boosted_points_2 = drivers[team[0][boosted_drivers[1]]][1]
-            results.append((roster, total_cost, total_points + (boosted_points_1 + (boosted_points_2 * 2))))
-            results.append((roster, total_cost, total_points + ((boosted_points_1 * 2) + boosted_points_2)))
+            results.append((roster, total_cost, total_points))
 
     print(sorted(results, key=lambda r: r[2], reverse=True)[0])
-
-    # print("Done...")
-    # search_points = int(input("Find team with how many points?: "))
-    # found = set()
-    # for team, cost, points in results:
-    #     if points == search_points:
-    #         names = ','.join(roster[0] for roster in sorted(team, key=lambda team_tup: team_tup[0]))
-    #         if 'Piastri' in names and 'Yuki' not in names and 'Bearman' not in names and 'Hadjar' in names and 'Bortoleto' not in names and 'Alpine' not in names and 'Ocon' not in names and 'Gasly' not in names and 'Sainz' in names:
-    #             found.add(names)
-    # print(f"Found {len(found)} combinations with {search_points} points...")
-    # print('='*100)
-    # for t in found:
-    #     print(t)
