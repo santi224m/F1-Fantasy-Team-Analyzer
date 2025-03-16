@@ -1,11 +1,14 @@
-import os
-import sys
+from sys import argv
+from os import getcwd
 from itertools import combinations, product
 
 from bs4 import BeautifulSoup
 
+from utils.Driver import Driver
+from utils.Constructor import Constructor
+
 def find_top_team(*, VERBOSE=False):
-    base_path = '../data/' if 'scripts' in os.getcwd() else 'data/'
+    base_path = '../data/' if 'scripts' in getcwd() else 'data/'
     drivers = {}
     idx = 0
     COST_CAP = 100.0
@@ -27,10 +30,10 @@ def find_top_team(*, VERBOSE=False):
         except:
             continue
         try:
-            drive_price = float(player_li.find('span', {"class": "si-bgTxt"}).get_text().replace('$', '').replace('M', ''))
+            driver_price = float(player_li.find('span', {"class": "si-bgTxt"}).get_text().replace('$', '').replace('M', ''))
         except:
             continue
-        drivers[idx] = (driver_name, driver_points, drive_price)
+        drivers[idx] = Driver(driver_name, driver_price, driver_points)
         idx += 1
 
     # ---------------------------------------------------------------------------- #
@@ -52,7 +55,7 @@ def find_top_team(*, VERBOSE=False):
             constructor_price = float(constructor_li.find('span', {'class': 'si-bgTxt'}).get_text().strip().replace('$', '').replace('M', ''))
         except: continue
 
-        constructors[idx] = (constructor_name, constructor_pts, constructor_price)
+        constructors[idx] = Constructor(constructor_name, constructor_price, constructor_pts)
         idx += 1
 
     # ---------------------------------------------------------------------------- #
@@ -73,28 +76,23 @@ def find_top_team(*, VERBOSE=False):
     results = []
     for team in teams:
         total_cost = 0
-        drivers_cost = 0
-        constructors_cost = 0
         total_points = 0
 
         roster = []
 
         # Calculate drivers cost
-        for driver in team[0]:
-            name, points, price = drivers[driver]
-            drivers_cost += price
-            roster.append(drivers[driver])
-            total_points += points
+        for driver_id in team[0]:
+            total_cost += drivers[driver_id].price
+            total_points += drivers[driver_id].points
+            roster.append(drivers[driver_id])
 
         # Calculate constructors cost
-        for constructor in team[1]:
-            name, points, price = constructors[constructor]
-            constructors_cost += price
-            roster.append(constructors[constructor])
-            total_points += points
+        for constructor_id in team[1]:
+            total_cost += constructors[constructor_id].price
+            total_points += constructors[constructor_id].points
+            roster.append(constructors[constructor_id])
 
         # Ensure total cost is under cost cap
-        total_cost = drivers_cost + constructors_cost
         if total_cost <= COST_CAP:
             results.append((roster, total_cost, total_points))
 
@@ -103,7 +101,7 @@ def find_top_team(*, VERBOSE=False):
     return top_team    
 
 if __name__ == "__main__":
-    verbose = True if '--verbose' in set(sys.argv) else False
+    verbose = True if '--verbose' in set(argv) else False
     top_team = find_top_team(VERBOSE=verbose)
     if verbose:
         print(top_team)
