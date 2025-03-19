@@ -35,7 +35,7 @@ class Roster:
     drivers_table.add_column("Price", justify="center", style="dark_olive_green2")
     drivers_table.add_column("Points", justify="center", style="dark_slate_gray2")
 
-    for idx, driver in enumerate(self.drivers):
+    for idx, driver in enumerate(sorted(self.drivers, key=lambda driver: driver.points, reverse=True)):
       drivers_table.add_row(str(idx+1), driver.name, f"${driver.price:.1f}M", str(driver.points))
 
     # ---------------------------------------------------------------------------- #
@@ -48,7 +48,7 @@ class Roster:
     constructors_table.add_column("Price", justify="center", style="dark_olive_green2")
     constructors_table.add_column("Points", justify="center", style="dark_slate_gray2")
 
-    for idx, constructor in enumerate(self.constructors):
+    for idx, constructor in enumerate(sorted(self.constructors, key=lambda constructor: constructor.points, reverse=True)):
       constructors_table.add_row(str(idx+1), constructor.name, f"${constructor.price:.1f}M", str(constructor.points))
 
     # ---------------------------------------------------------------------------- #
