@@ -39,56 +39,6 @@ def find_top_team(*, VERBOSE=False):
         constructors[idx] = c
         idx += 1
 
-    # base_path = '../data/' if 'scripts' in getcwd() else 'data/'
-    # drivers = {}
-    # idx = 0
-    # COST_CAP = 100.0
-
-    # # ---------------------------------------------------------------------------- #
-    # #                               PARSE DRIVER DATA                              #
-    # # ---------------------------------------------------------------------------- #
-    # with open(f"{base_path}drivers_html.txt", 'r') as html:
-    #     soup = BeautifulSoup(html.read(), features="html.parser")
-
-    # # Iterate through drivers
-    # for player_li in soup.find_all('li'):
-    #     # Get driver name
-    #     img_tag = player_li.find('img')
-    #     if (img_tag):
-    #         driver_name = img_tag.get('alt')
-    #     try:
-    #         driver_points = int(player_li.find_all('div', {"class": "si-player__stats-nums"})[1].find('span').get_text().strip().split()[0])
-    #     except:
-    #         continue
-    #     try:
-    #         driver_price = float(player_li.find('span', {"class": "si-bgTxt"}).get_text().replace('$', '').replace('M', ''))
-    #     except:
-    #         continue
-    #     drivers[idx] = Driver(driver_name, driver_price, driver_points)
-    #     idx += 1
-
-    # # ---------------------------------------------------------------------------- #
-    # #                            PARSE CONSTRUCTOR DATA                            #
-    # # ---------------------------------------------------------------------------- #
-    # with open(f"{base_path}constructors_html.txt", 'r') as html:
-    #     soup = BeautifulSoup(html.read(), features="html.parser")
-
-    # constructors = {}
-    # # Iterate through constructors
-    # for constructor_li in soup.find_all('li'):
-    #     try:
-    #         constructor_name = constructor_li.find('div', {"class": "si-player__name--constructor"}).find('span').get_text().strip()
-    #     except: continue
-    #     try:
-    #         constructor_pts = int(constructor_li.find_all('div', {"class": "si-player__stats-nums"})[1].find('span').get_text().strip().split()[0])
-    #     except: continue
-    #     try:
-    #         constructor_price = float(constructor_li.find('span', {'class': 'si-bgTxt'}).get_text().strip().replace('$', '').replace('M', ''))
-    #     except: continue
-
-    #     constructors[idx] = Constructor(constructor_name, constructor_price, constructor_pts)
-    #     idx += 1
-
     # ---------------------------------------------------------------------------- #
     #                   CREATE COMBINATIONS OF ALL POSSIBLE TEAMS                  #
     # ---------------------------------------------------------------------------- #
