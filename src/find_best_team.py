@@ -1,8 +1,6 @@
 from itertools import combinations, product
 from contextlib import nullcontext
 
-import requests
-
 # from rich.progress import Progress
 from rich.progress import (
     BarColumn,
@@ -11,31 +9,12 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from utils.Driver import Driver
-from utils.Constructor import Constructor
+from fetch_standings import fetch_standings
 from utils.Roster import Roster
 
 def find_top_team(*, VERBOSE=False):
-    url = "https://fantasy.formula1.com/feeds/drivers/2_en.json?buster=20250316135258"
-    res = requests.get(url)
-    fetch_res = res.json()['Data']['Value']
-    drivers_json = [res for res in fetch_res if res['PositionName'] == "DRIVER"]
-    constructors_json = [res for res in fetch_res if res['PositionName'] == "CONSTRUCTOR"]
-
-    drivers = {}
-    constructors = {}
-    idx = 0
     COST_CAP = 100.0
-
-    for driver in drivers_json:
-        d = Driver(driver['FUllName'], driver['Value'], float(driver['OverallPpints']))
-        drivers[idx] = d
-        idx += 1
-
-    for constructor in constructors_json:
-        c = Constructor(constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']))
-        constructors[idx] = c
-        idx += 1
+    drivers, constructors = fetch_standings()
 
     # ---------------------------------------------------------------------------- #
     #                   CREATE COMBINATIONS OF ALL POSSIBLE TEAMS                  #
