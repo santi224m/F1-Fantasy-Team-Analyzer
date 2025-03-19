@@ -1,9 +1,7 @@
-from os import getcwd
 from itertools import combinations, product
 from contextlib import nullcontext
 
 import requests
-from bs4 import BeautifulSoup
 
 # from rich.progress import Progress
 from rich.progress import (
