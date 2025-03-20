@@ -1,3 +1,5 @@
+# My team URL: https://fantasy.formula1.com/services/user/gameplay/64a1a090-fee7-11ef-a647-75f1571865cc/getteam/1/1/2/1?buster=1742435023543
+
 from sys import argv
 
 import requests
@@ -14,19 +16,16 @@ def fetch_standings():
   drivers_json = [res for res in fetch_res if res['PositionName'] == "DRIVER"]
   constructors_json = [res for res in fetch_res if res['PositionName'] == "CONSTRUCTOR"]
 
-  idx = 0
   drivers = {}
   constructors = {}
 
   for driver in drivers_json:
-    d = Driver(driver['FUllName'], driver['Value'], float(driver['OverallPpints']), float(driver['ProjectedOverallPpints']))
-    drivers[idx] = d
-    idx += 1
+    d = Driver(driver['PlayerId'], driver['FUllName'], driver['Value'], float(driver['OverallPpints']), float(driver['ProjectedOverallPpints']))
+    drivers[d.id] = d
 
   for constructor in constructors_json:
-    c = Constructor(constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']), float(constructor['ProjectedOverallPpints']))
-    constructors[idx] = c
-    idx += 1
+    c = Constructor(constructor['PlayerId'], constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']), float(constructor['ProjectedOverallPpints']))
+    constructors[c.id] = c
 
   return (drivers, constructors)
 
