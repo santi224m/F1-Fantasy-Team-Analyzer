@@ -69,3 +69,8 @@ class Roster:
     console.print(constructors_table)
     print()
     console.print(stats_table)
+
+  def diff(self, other_roster):
+    self_set = set([d.id for d in self.drivers] + [c.id for c in self.constructors])
+    other_set = set([d.id for d in other_roster.drivers] + [c.id for c in other_roster.constructors])
+    return self_set.difference(other_set)

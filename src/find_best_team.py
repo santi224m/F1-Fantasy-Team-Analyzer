@@ -12,7 +12,7 @@ from rich.progress import (
 from fetch_standings import fetch_standings
 from utils.Roster import Roster
 
-def find_top_team(*, VERBOSE=False):
+def find_top_team(*, VERBOSE=False, RETURN_COUNT=0):
     COST_CAP = 100.0
     drivers, constructors = fetch_standings()
 
@@ -58,7 +58,10 @@ def find_top_team(*, VERBOSE=False):
             if VERBOSE:
                 progress.update(task1, advance=1)
 
-    top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)[0]
+    if RETURN_COUNT < len(valid_rosters):
+        top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)[RETURN_COUNT]
+    else:
+        top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)
     return top_team
 
 if __name__ == "__main__":
