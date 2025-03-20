@@ -15,12 +15,12 @@ def fetch_standings():
   constructors = {}
 
   for driver in drivers_json:
-    d = Driver(driver['FUllName'], driver['Value'], float(driver['OverallPpints']))
+    d = Driver(driver['FUllName'], driver['Value'], float(driver['OverallPpints']), float(driver['ProjectedOverallPpints']))
     drivers[idx] = d
     idx += 1
 
   for constructor in constructors_json:
-    c = Constructor(constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']))
+    c = Constructor(constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']), float(constructor['ProjectedOverallPpints']))
     constructors[idx] = c
     idx += 1
 
