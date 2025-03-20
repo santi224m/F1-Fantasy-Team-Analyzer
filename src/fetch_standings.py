@@ -1,4 +1,8 @@
+from sys import argv
+
 import requests
+from rich.console import Console
+from rich.table import Table
 
 from utils.Driver import Driver
 from utils.Constructor import Constructor
@@ -28,11 +32,54 @@ def fetch_standings():
 
 if __name__ == "__main__":
   drivers, constructors = fetch_standings()
-  bar = '='*20
-  print(f"{bar} Drivers {bar}")
-  for d in drivers.values():
-    print(d.__dict__)
 
-  print(f"{bar} Constructors {bar}")
-  for c in constructors.values():
-    print(c.__dict__)
+  if '--projected' in argv:
+    drivers_standings = sorted(drivers.values(), key=lambda d: d.projected, reverse=True)
+    constructors_standings = sorted(constructors.values(), key=lambda c: c.projected, reverse=True)
+  else:
+    drivers_standings = sorted(drivers.values(), key=lambda d: d.points, reverse=True)
+    constructors_standings = sorted(constructors.values(), key=lambda c: c.points, reverse=True)
+
+  # ---------------------------------------------------------------------------- #
+  #                                 DRIVERS TABLE                                #
+  # ---------------------------------------------------------------------------- #
+  drivers_table = Table(title="Driver Standings")
+  drivers_table.add_column("", justify="center", style="white")
+  drivers_table.add_column("Name", justify="center", style="grey100", no_wrap=True)
+  drivers_table.add_column("Price", justify="right", style="dark_olive_green2")
+  drivers_table.add_column("Points", justify="center", style="dark_slate_gray2")
+  drivers_table.add_column("Projected Points", justify="center", style="dark_slate_gray2")
+
+  for idx, driver in enumerate(drivers_standings):
+    drivers_table.add_row(
+      str(idx + 1),
+      driver.name,
+      f"${driver.price}M",
+      str(driver.points),
+      str(driver.projected)
+      )
+
+
+  # ---------------------------------------------------------------------------- #
+  #                              CONSTRUCTORS TABLE                              #
+  # ---------------------------------------------------------------------------- #
+  constructors_table = Table(title="Constructors Standings")
+  constructors_table.add_column("", justify="center", style="white")
+  constructors_table.add_column("Name", justify="center", style="grey100", no_wrap=True)
+  constructors_table.add_column("Price", justify="right", style="dark_olive_green2")
+  constructors_table.add_column("Points", justify="center", style="dark_slate_gray2")
+  constructors_table.add_column("Projected Points", justify="center", style="dark_slate_gray2")
+
+  for idx, constructor in enumerate(constructors_standings):
+    constructors_table.add_row(
+      str(idx + 1),
+      constructor.name,
+      f"${constructor.price}M",
+      str(constructor.points),
+      str(constructor.projected)
+    )
+
+  # Print tables
+  console = Console()
+  console.print(drivers_table)
+  console.print(constructors_table)
