@@ -10,8 +10,12 @@ def get_my_team():
   url = "https://fantasy.formula1.com/services/user/gameplay/64a1a090-fee7-11ef-a647-75f1571865cc/getteam/1/1/2/1?buster=1742435023543"
   my_cookie = os.environ.get('MY_COOKIE')
 
-  res = requests.get(url, headers={'Cookie': my_cookie})
-  data = res.json()['Data']['Value']['userTeam'][0]['playerid']
+  try:
+    res = requests.get(url, headers={'Cookie': my_cookie})
+    data = res.json()['Data']['Value']['userTeam'][0]['playerid']
+  except:
+    print("Error fetching team data. Try reseting auth cookie in '.env' file.")
+    exit()
   drivers, constructors = fetch_standings()
   team = Roster()
 
