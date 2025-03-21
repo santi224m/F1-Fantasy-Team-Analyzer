@@ -19,15 +19,16 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
       drivers[id].points = pos_map[pos]
       constructors[drivers[id].team_id].points += pos_map[pos]
     print()
-  top_teams = find_top_team(RETURN_COUNT=1000000, COST_CAP=COST_CAP, CUSTOM_STANDINGS=(drivers, constructors))
   my_team = get_my_team()
+  team_balance = my_team.cost + my_team.budget
+  top_teams = find_top_team(RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
   for team in top_teams:
     transfers_needed = team.diff(my_team)
     if len(transfers_needed) <= ALLOW_TRANSFERS:
       best_team = team
       break
-  
+
   sell_ids = my_team.diff(best_team)
   buy_ids = best_team.diff(my_team)
   sell = []

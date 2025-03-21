@@ -13,11 +13,13 @@ def get_my_team():
   try:
     res = requests.get(url, headers={'Cookie': my_cookie})
     data = res.json()['Data']['Value']['userTeam'][0]['playerid']
+    team_balance = res.json()['Data']['Value']['userTeam'][0]['teambal']
   except:
     print("Error fetching team data. Try reseting auth cookie in '.env' file.")
     exit()
   drivers, constructors = fetch_standings()
   team = Roster()
+  team.set_budget(team_balance)
 
   for member in data:
     id = member['id']

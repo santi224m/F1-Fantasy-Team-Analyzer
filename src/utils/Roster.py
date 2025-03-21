@@ -10,6 +10,7 @@ class Roster:
     self.projected = 0
     self.MAX_DRIVERS = 5
     self.MAX_CONSTRUCTORS = 2
+    self.budget = 0.0
 
   def add_driver(self, driver):
     if len(self.drivers) == self.MAX_DRIVERS:
@@ -26,6 +27,9 @@ class Roster:
     self.cost += constructor.price
     self.points += constructor.points
     self.projected += constructor.projected
+
+  def set_budget(self, budget):
+    self.budget = budget
 
   def print_table(self):
     # ---------------------------------------------------------------------------- #
