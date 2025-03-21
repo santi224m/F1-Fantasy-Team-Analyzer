@@ -9,7 +9,11 @@ from fetch_standings import fetch_standings
 
 def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
   drivers, constructors = fetch_standings()
+  my_team = get_my_team()
   if '--custom' in argv:
+    my_team.points = 0
+    my_team_d_ids = set([d.id for d in my_team.drivers])
+    my_team_c_ids = set([c.id for c in my_team.constructors])
     pos_map = {i+1: 40 - (i+1)*2 for i in range(20)}
     # Reset contructors points
     for id in constructors.keys():
@@ -18,8 +22,9 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
       pos = int(input(f"{driver.name} Pos: "))
       drivers[id].points = pos_map[pos]
       constructors[drivers[id].team_id].points += pos_map[pos]
+      if id in my_team_d_ids or id in my_team_c_ids:
+        my_team.points += pos_map[pos] * 2
     print()
-  my_team = get_my_team()
   team_balance = my_team.cost + my_team.budget
   top_teams = find_top_team(RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
