@@ -18,7 +18,7 @@ def fetch_standings():
   constructors = {}
 
   for driver in drivers_json:
-    d = Driver(driver['PlayerId'], driver['FUllName'], driver['Value'], float(driver['OverallPpints']), float(driver['ProjectedOverallPpints']))
+    d = Driver(driver['PlayerId'], driver['TeamId'], driver['FUllName'], driver['Value'], float(driver['OverallPpints']), float(driver['ProjectedOverallPpints']))
     drivers[d.id] = d
 
   for constructor in constructors_json:
