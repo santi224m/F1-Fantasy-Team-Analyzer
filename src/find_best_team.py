@@ -12,8 +12,11 @@ from rich.progress import (
 from fetch_standings import fetch_standings
 from utils.Roster import Roster
 
-def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0):
-    drivers, constructors = fetch_standings()
+def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STANDINGS=None):
+    if CUSTOM_STANDINGS:
+        drivers, constructors = CUSTOM_STANDINGS
+    else:
+        drivers, constructors = fetch_standings()
 
     # ---------------------------------------------------------------------------- #
     #                   CREATE COMBINATIONS OF ALL POSSIBLE TEAMS                  #
