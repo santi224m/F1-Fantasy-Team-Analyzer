@@ -1,3 +1,5 @@
+from sys import argv
+
 from itertools import combinations, product
 from contextlib import nullcontext
 
@@ -46,8 +48,13 @@ def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STAND
             roster = Roster()
 
             # Add drivers to roster
+            double_points = 0
             for driver_id in team[0]:
+                if drivers[driver_id].points > double_points:
+                    double_points = drivers[driver_id].points
                 roster.add_driver(drivers[driver_id])
+            if '--custom' in argv:
+                roster.points += double_points
 
             # Add constructors to roster
             for constructor_id in team[1]:

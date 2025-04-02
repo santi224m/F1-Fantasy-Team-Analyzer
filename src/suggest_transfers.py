@@ -1,5 +1,6 @@
 from sys import argv
 
+import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
@@ -11,21 +12,48 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
   drivers, constructors = fetch_standings()
   my_team = get_my_team()
   if '--custom' in argv:
+    if '--csv' in argv:
+      predicted_standings = pd.read_csv('src/csv/predicted_standings.csv', index_col='Driver')
     my_team.points = 0
     my_team_d_ids = set([d.id for d in my_team.drivers])
     my_team_c_ids = set([c.id for c in my_team.constructors])
-    pos_map = {i+1: 40 - (i+1)*2 for i in range(20)}
+    pos_map = {
+      1: 35,
+      2: 27,
+      3: 23,
+      4: 19,
+      5: 16,
+      6: 11,
+      7: 10,
+      8: 7,
+      9: 4,
+      10: 2,
+      11: 0,
+      12: 0,
+      13: 0,
+      14: 0,
+      15: 0,
+      16: 0,
+      17: 0,
+      18: 0,
+      19: 0,
+      20: 0,
+      99: -26
+    }
     # Reset contructors points
     for id in constructors.keys():
       constructors[id].points = 0
     for id, driver in drivers.items():
-      pos = int(input(f"{driver.name} Pos: "))
+      if '--csv' in argv:
+        pos = predicted_standings.loc[driver.name].Pos
+      else:
+        pos = int(input(f"{driver.name} Pos: "))
       drivers[id].points = pos_map[pos]
       constructors[drivers[id].team_id].points += pos_map[pos]
       if id in my_team_d_ids or id in my_team_c_ids:
         my_team.points += pos_map[pos] * 2
     print()
-  team_balance = my_team.cost + my_team.budget
+  team_balance = my_team.cost + my_team.budget - .1
   top_teams = find_top_team(RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
   for team in top_teams:
@@ -70,4 +98,4 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
   best_team.print_table()
 
 if __name__ == "__main__":
-  find_best_transfers()
+  find_best_transfers(ALLOW_TRANSFERS=4)
