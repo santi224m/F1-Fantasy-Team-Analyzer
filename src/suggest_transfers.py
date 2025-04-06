@@ -41,6 +41,7 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
       99: -26 # For drivers you don't want to be suggested
     }
     # Reset contructors points
+    double_points = 0 # Add tops drivers points twice for 2x driver
     for id in constructors.keys():
       constructors[id].points = 0
     for id, driver in drivers.items():
@@ -50,9 +51,16 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
         pos = int(input(f"{driver.name} Pos: "))
       drivers[id].points = pos_map[pos]
       constructors[drivers[id].team_id].points += pos_map[pos]
-      if id in my_team_d_ids or id in my_team_c_ids:
-        my_team.points += pos_map[pos] * 2
-    print()
+      if id in my_team_d_ids:
+        my_team.points += pos_map[pos]
+        if pos_map[pos] > double_points:
+          double_points = pos_map[pos]
+    # Add contructor points back to my team
+    for id, constructor in constructors.items():
+      if id in my_team_c_ids:
+        my_team.points += constructor.points
+    # Add double points to 2x driver
+    my_team.points += double_points
   team_balance = my_team.cost + my_team.budget - .1
   top_teams = find_top_team(RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
