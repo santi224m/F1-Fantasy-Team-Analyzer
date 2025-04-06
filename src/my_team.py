@@ -7,7 +7,7 @@ from utils.Roster import Roster
 
 def get_my_team():
   load_dotenv()
-  url = "https://fantasy.formula1.com/services/user/gameplay/64a1a090-fee7-11ef-a647-75f1571865cc/getteam/1/1/2/1?buster=1742435023543"
+  url = os.environ.get('MY_TEAM_URL')
   my_cookie = os.environ.get('MY_COOKIE')
 
   try:
@@ -15,7 +15,8 @@ def get_my_team():
     data = res.json()['Data']['Value']['userTeam'][0]['playerid']
     team_balance = res.json()['Data']['Value']['userTeam'][0]['teambal']
   except:
-    print("Error fetching team data. Try reseting auth cookie in '.env' file.")
+    print("Error fetching team data. Try resetting auth cookie in '.env' file and make sure that MY_TEAM_URL is correct.")
+    print("MY_TEAM_URL should have https://fantasy.formula1.com/services/user/gameplay/{SOME-UUID}/getteam/{SOME-NUMBER}/{SOME-NUMBER}/{SOME-NUMBER}/{SOME-NUMBER}?buster={SOME-NUMBER} format.")
     exit()
   drivers, constructors = fetch_standings()
   team = Roster()
