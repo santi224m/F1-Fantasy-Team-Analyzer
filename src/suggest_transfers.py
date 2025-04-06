@@ -98,4 +98,4 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
   best_team.print_table()
 
 if __name__ == "__main__":
-  find_best_transfers(ALLOW_TRANSFERS=4)
+  find_best_transfers(ALLOW_TRANSFERS=2)
