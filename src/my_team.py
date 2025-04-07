@@ -35,4 +35,5 @@ def get_my_team():
 
 if __name__ == "__main__":
   my_team = get_my_team()
-  my_team.print_table()
+  my_team_balance = my_team.cost + my_team.budget - .1
+  my_team.print_table(team_balance=my_team_balance)

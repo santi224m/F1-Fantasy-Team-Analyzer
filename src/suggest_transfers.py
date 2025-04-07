@@ -108,7 +108,7 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
   console.print(transfer_table)
   console.print(points_table)
   print('\n'*2)
-  best_team.print_table()
+  best_team.print_table(team_balance=team_balance)
 
 if __name__ == "__main__":
   find_best_transfers(ALLOW_TRANSFERS=2)

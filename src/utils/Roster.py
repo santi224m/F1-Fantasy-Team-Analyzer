@@ -31,7 +31,7 @@ class Roster:
   def set_budget(self, budget):
     self.budget = budget
 
-  def print_table(self):
+  def print_table(self, *, team_balance=100.0):
     # ---------------------------------------------------------------------------- #
     #                                 DRIVERS TABLE                                #
     # ---------------------------------------------------------------------------- #
@@ -65,7 +65,7 @@ class Roster:
 
     stats_table.add_column("Total Cost", justify="center", style="dark_olive_green2", no_wrap=True)
     stats_table.add_column("Total Points", justify="center", style="dark_slate_gray2")
-    stats_table.add_row(f"${self.cost:.1f}M/$100.0M", str(self.points))
+    stats_table.add_row(f"${self.cost:.1f}M/${team_balance:.1f}M", str(self.points))
 
     # ---------------------------------------------------------------------------- #
     #                                 PRINT TABLES                                 #
