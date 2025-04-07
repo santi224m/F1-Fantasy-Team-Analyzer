@@ -66,7 +66,12 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
 
   for team in top_teams:
     transfers_needed = team.diff(my_team)
-    if len(transfers_needed) <= ALLOW_TRANSFERS:
+    # Stop looking when we reach our current team, meaning we cannot improve
+    if len(transfers_needed) == 0:
+      best_team = team
+      break
+
+    if len(transfers_needed) <= ALLOW_TRANSFERS and team.points > my_team.points:
       best_team = team
       break
 
