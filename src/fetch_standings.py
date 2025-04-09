@@ -11,6 +11,13 @@ from utils.Constructor import Constructor
 from dotenv import load_dotenv
 
 def fetch_standings():
+  # For drivers who have double entries, record which ID not to use
+  # Ex: Yuki has an ID for Racing Bulls an Red Bull, so exclude Racing Bulls Yuki
+  EXCLUDE_DRIVERS_ID= set([
+    "130",    # Yuki Tsunoda - Racing Bulls
+    "114",    # Liam Lawson - Red Bull Racing
+  ])
+
   load_dotenv()
   url = os.environ.get('DRIVER_STANDINGS_URL')
   res = requests.get(url)
@@ -22,6 +29,7 @@ def fetch_standings():
   constructors = {}
 
   for driver in drivers_json:
+    if driver['PlayerId'] in EXCLUDE_DRIVERS_ID: continue
     d = Driver(driver['PlayerId'], driver['TeamId'], driver['FUllName'], driver['Value'], float(driver['OverallPpints']), float(driver['ProjectedOverallPpints']))
     drivers[d.id] = d
 
