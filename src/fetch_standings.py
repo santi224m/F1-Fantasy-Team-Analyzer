@@ -1,3 +1,4 @@
+import os
 from sys import argv
 
 import requests
@@ -7,8 +8,11 @@ from rich.table import Table
 from utils.Driver import Driver
 from utils.Constructor import Constructor
 
+from dotenv import load_dotenv
+
 def fetch_standings():
-  url = "https://fantasy.formula1.com/feeds/drivers/2_en.json?buster=20250316135258"
+  load_dotenv()
+  url = os.environ.get('DRIVER_STANDINGS_URL')
   res = requests.get(url)
   fetch_res = res.json()['Data']['Value']
   drivers_json = [res for res in fetch_res if res['PositionName'] == "DRIVER"]

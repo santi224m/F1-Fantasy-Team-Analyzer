@@ -3,3 +3,4 @@ __pycache__/
 .env
 
 src/csv/predicted_standings.csv
+src/csv/.*
