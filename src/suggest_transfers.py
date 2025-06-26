@@ -18,27 +18,27 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
     my_team_d_ids = set([d.id for d in my_team.drivers])
     my_team_c_ids = set([c.id for c in my_team.constructors])
     pos_map = {
-      1: 25,
-      2: 18,
-      3: 15,
-      4: 12,
-      5: 10,
-      6: 8,
-      7: 6,
-      8: 4,
-      9: 2,
-      10: 1,
-      11: 0,
-      12: 0,
-      13: 0,
-      14: 0,
-      15: 0,
-      16: 0,
-      17: 0,
-      18: 0,
-      19: 0,
-      20: 0,
-      99: -26 # For drivers you don't want to be suggested
+      1: 47,
+      2: 35,
+      3: 29,
+      4: 22,
+      5: 22,
+      6: 17,
+      7: 15,
+      8: 15,
+      9: 13,
+      10: 12,
+      11: 10,
+      12: 7,
+      13: 6,
+      14: 5,
+      15: 2,
+      16: 2,
+      17: 1,
+      18: -2,
+      19: -16,
+      20: -20,
+      99: -1000 # For drivers you don't want to be suggested
     }
     # Reset contructors points
     double_points = 0 # Add tops drivers points twice for 2x driver

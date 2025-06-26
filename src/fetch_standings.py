@@ -16,6 +16,7 @@ def fetch_standings():
   EXCLUDE_DRIVERS_ID= set([
     "130",    # Yuki Tsunoda - Racing Bulls
     "114",    # Liam Lawson - Red Bull Racing
+    "15",    # Jack Doohan - Alpine
   ])
 
   load_dotenv()
