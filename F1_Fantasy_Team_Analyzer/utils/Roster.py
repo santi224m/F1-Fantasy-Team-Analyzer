@@ -31,7 +31,7 @@ class Roster:
   def set_budget(self, budget):
     self.budget = budget
 
-  def print_table(self, *, team_balance=100.0):
+  def print_table(self, console, *, team_balance=100.0):
     # ---------------------------------------------------------------------------- #
     #                                 DRIVERS TABLE                                #
     # ---------------------------------------------------------------------------- #
@@ -70,7 +70,6 @@ class Roster:
     # ---------------------------------------------------------------------------- #
     #                                 PRINT TABLES                                 #
     # ---------------------------------------------------------------------------- #
-    console = Console()
     console.print(drivers_table)
     print()
     console.print(constructors_table)

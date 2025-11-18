@@ -14,7 +14,7 @@ class Config:
     else:
       return {
         "DRIVER_STANDINGS_URL": None,
-        "MY_TEAM_URL": None,
+        "TEAM_URL": None,
         "USER_COOKIE": None
       }
   

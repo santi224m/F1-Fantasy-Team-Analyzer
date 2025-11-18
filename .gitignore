@@ -4,3 +4,5 @@ __pycache__/
 
 src/csv/predicted_standings.csv
 src/csv/.*
+
+config.json

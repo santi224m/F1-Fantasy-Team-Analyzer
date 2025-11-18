@@ -9,6 +9,7 @@ from F1_Fantasy_Team_Analyzer import __version__
 from F1_Fantasy_Team_Analyzer.Config import Config
 
 from F1_Fantasy_Team_Analyzer.fetch_standings import print_staindings
+from F1_Fantasy_Team_Analyzer.my_team import print_team
 
 def display_main_menu(console):
   """
@@ -17,7 +18,7 @@ def display_main_menu(console):
   menu_text = """
   [bold cyan]Main Menu[/bold cyan]
 
-  [1] Analyze Current Team
+  [1] Show Current Team
   [2] Fetch Standings
   [9] Update Config
   [0] Exit
@@ -74,8 +75,10 @@ def main():
       console.print("[bold green]Thanks for using F1 Fantasy Team Analyzer![/bold green]")
       break
     elif choice == "1":
-      console.print("\n[yellow]Analyzing current team...[/yellow]")
-      console.print("\n[red]Not yet implemented...[/red]")
+      console.clear()
+      console.print("\n[yellow]Fetching current team...[/yellow]")
+      print_team(console, config)
+      Prompt.ask("Press ENTER to continue")
     elif choice == "2":
       print_staindings(console, config)
       Prompt.ask("Press ENTER to continue")
