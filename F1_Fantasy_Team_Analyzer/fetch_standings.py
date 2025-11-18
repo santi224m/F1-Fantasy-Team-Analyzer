@@ -1,16 +1,13 @@
-import os
 from sys import argv
 
 import requests
 from rich.console import Console
 from rich.table import Table
 
-from utils.Driver import Driver
-from utils.Constructor import Constructor
+from F1_Fantasy_Team_Analyzer.utils.Driver import Driver
+from F1_Fantasy_Team_Analyzer.utils.Constructor import Constructor
 
-from dotenv import load_dotenv
-
-def fetch_standings():
+def fetch_standings(config):
   # For drivers who have double entries, record which ID not to use
   # Ex: Yuki has an ID for Racing Bulls an Red Bull, so exclude Racing Bulls Yuki
   EXCLUDE_DRIVERS_ID= set([
@@ -19,8 +16,9 @@ def fetch_standings():
     "15",    # Jack Doohan - Alpine
   ])
 
-  load_dotenv()
-  url = os.environ.get('DRIVER_STANDINGS_URL')
+  url = config.get('DRIVER_STANDINGS_URL')
+  if url is None or url.strip() == "":
+    raise Exception("Missing driver standings url. Please update config.")
   res = requests.get(url)
   fetch_res = res.json()['Data']['Value']
   drivers_json = [res for res in fetch_res if res['PositionName'] == "DRIVER"]
@@ -40,8 +38,9 @@ def fetch_standings():
 
   return (drivers, constructors)
 
-if __name__ == "__main__":
-  drivers, constructors = fetch_standings()
+def print_staindings(console, config):
+  console.print("\n[yellow]Fetching standings...[/yellow]")
+  drivers, constructors = fetch_standings(config)
 
   if '--projected' in argv:
     drivers_standings = sorted(drivers.values(), key=lambda d: d.projected, reverse=True)
@@ -89,6 +88,6 @@ if __name__ == "__main__":
     )
 
   # Print tables
-  console = Console()
+  console.clear()
   console.print(drivers_table)
   console.print(constructors_table)

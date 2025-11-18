@@ -28,7 +28,7 @@
 Clone the repository.
 
 ```bash
-git@github.com:santi224m/F1-Fantasy-Team-Analyzer.git
+git clone git@github.com:santi224m/F1-Fantasy-Team-Analyzer.git
 cd F1-Fantasy-Team-Analyzer
 ```
 <br />
@@ -51,7 +51,7 @@ pip install -r requirements.txt
 Run Script
 
 ```bash
-python scripts/find_team.py --verbose
+python -m F1_Fantasy_Team_Analyzer
 ```
 
 ## Top Contributors
