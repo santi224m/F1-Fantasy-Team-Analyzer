@@ -4,13 +4,13 @@ import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
-from find_best_team import find_top_team
-from my_team import get_my_team
-from fetch_standings import fetch_standings
+from F1_Fantasy_Team_Analyzer.find_best_team import find_top_team
+from F1_Fantasy_Team_Analyzer.my_team import get_my_team
+from F1_Fantasy_Team_Analyzer.fetch_standings import fetch_standings
 
-def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
-  drivers, constructors = fetch_standings()
-  my_team = get_my_team()
+def find_best_transfers(config, *, ALLOW_TRANSFERS=2, COST_CAP=100.0):
+  drivers, constructors = fetch_standings(config)
+  my_team = get_my_team(config)
   if '--custom' in argv:
     if '--csv' in argv:
       predicted_standings = pd.read_csv('src/csv/predicted_standings.csv', index_col='Driver')
@@ -62,7 +62,7 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
     # Add double points to 2x driver
     my_team.points += double_points
   team_balance = my_team.cost + my_team.budget - .1
-  top_teams = find_top_team(RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
+  top_teams = find_top_team(config, RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
   for team in top_teams:
     transfers_needed = team.diff(my_team)
@@ -108,7 +108,4 @@ def find_best_transfers(*, ALLOW_TRANSFERS=2, COST_CAP=100.0):
   console.print(transfer_table)
   console.print(points_table)
   print('\n'*2)
-  best_team.print_table(team_balance=team_balance)
-
-if __name__ == "__main__":
-  find_best_transfers(ALLOW_TRANSFERS=2)
+  best_team.print_table(console, team_balance=team_balance)
