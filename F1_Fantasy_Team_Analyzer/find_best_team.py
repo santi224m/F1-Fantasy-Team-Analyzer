@@ -11,14 +11,14 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from fetch_standings import fetch_standings
-from utils.Roster import Roster
+from F1_Fantasy_Team_Analyzer.fetch_standings import fetch_standings
+from F1_Fantasy_Team_Analyzer.utils.Roster import Roster
 
-def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STANDINGS=None):
+def find_top_team(config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STANDINGS=None):
     if CUSTOM_STANDINGS:
         drivers, constructors = CUSTOM_STANDINGS
     else:
-        drivers, constructors = fetch_standings()
+        drivers, constructors = fetch_standings(config)
 
     # ---------------------------------------------------------------------------- #
     #                   CREATE COMBINATIONS OF ALL POSSIBLE TEAMS                  #
@@ -73,7 +73,6 @@ def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STAND
         top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)
     return top_team
 
-if __name__ == "__main__":
-    top_team = find_top_team(VERBOSE=True)
-    print()
-    top_team.print_table()
+def print_top_team(console, config):
+    top_team = find_top_team(config, VERBOSE=True)
+    top_team.print_table(console)

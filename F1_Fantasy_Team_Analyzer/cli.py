@@ -10,6 +10,7 @@ from F1_Fantasy_Team_Analyzer.Config import Config
 
 from F1_Fantasy_Team_Analyzer.fetch_standings import print_staindings
 from F1_Fantasy_Team_Analyzer.my_team import print_team
+from F1_Fantasy_Team_Analyzer.find_best_team import print_top_team
 
 def display_main_menu(console):
   """
@@ -20,11 +21,12 @@ def display_main_menu(console):
 
   [1] Show Current Team
   [2] Fetch Standings
+  [3] Find Best Team
   [9] Update Config
   [0] Exit
   
   Please select an option:"""
-  choices = ["1", "2", "9", "0"]
+  choices = ["1", "2", "3", "9", "0"]
 
   title = f"[bold green]{pkg_name}[/bold green]"
   subtitle = f"v{__version__}"
@@ -81,6 +83,11 @@ def main():
       Prompt.ask("Press ENTER to continue")
     elif choice == "2":
       print_staindings(console, config)
+      Prompt.ask("Press ENTER to continue")
+    elif choice == "3":
+      console.clear()
+      console.print("\n[yellow]Calculating best team...[/yellow]")
+      print_top_team(console, config)
       Prompt.ask("Press ENTER to continue")
     elif choice == "9":
       config_choices, idx_key_map = display_config(console, config)
