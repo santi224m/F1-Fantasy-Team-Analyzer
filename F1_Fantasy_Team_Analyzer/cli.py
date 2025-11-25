@@ -24,11 +24,12 @@ def display_main_menu(console):
   [2] Fetch Standings
   [3] Find Best Team
   [4] Suggest Transfers
+  [8] Auto Update Config (WIP)
   [9] Update Config
   [0] Exit
   
   Please select an option:"""
-  choices = ["1", "2", "3", "4", "9", "0"]
+  choices = ["1", "2", "3", "4", "8", "9", "0"]
 
   title = f"[bold green]{pkg_name}[/bold green]"
   subtitle = f"v{__version__}"
@@ -75,33 +76,41 @@ def main():
     choices = display_main_menu(console)
 
     choice = Prompt.ask("", choices=choices, show_choices=False)
-    if choice == "0":
-      console.print("[bold green]Thanks for using F1 Fantasy Team Analyzer![/bold green]")
-      break
-    elif choice == "1":
-      console.clear()
-      console.print("\n[yellow]Fetching current team...[/yellow]")
-      print_team(console, config)
-      Prompt.ask("Press ENTER to continue")
-    elif choice == "2":
-      print_staindings(console, config)
-      Prompt.ask("Press ENTER to continue")
-    elif choice == "3":
-      console.clear()
-      console.print("\n[yellow]Calculating best team...[/yellow]")
-      print_top_team(console, config)
-      Prompt.ask("Press ENTER to continue")
-    elif choice == "4":
-      console.clear()
-      console.print("\n[yellow]Calculating best transfers...[/yellow]")
-      find_best_transfers(config)
-      Prompt.ask("Press ENTER to continue")
-    elif choice == "9":
-      config_choices, idx_key_map = display_config(console, config)
-      choice = Prompt.ask("Key to update", choices=config_choices, show_choices=True)
+    try:
       if choice == "0":
-        continue
-      val = Prompt.ask("New value")
-      key = idx_key_map[int(choice)]
-      config.set(key, val)
+        console.print("[bold green]Thanks for using F1 Fantasy Team Analyzer![/bold green]")
+        break
+      elif choice == "1":
+        console.clear()
+        console.print("\n[yellow]Fetching current team...[/yellow]")
+        print_team(console, config)
+        Prompt.ask("Press ENTER to continue")
+      elif choice == "2":
+        print_staindings(console, config)
+        Prompt.ask("Press ENTER to continue")
+      elif choice == "3":
+        console.clear()
+        console.print("\n[yellow]Calculating best team...[/yellow]")
+        print_top_team(console, config)
+        Prompt.ask("Press ENTER to continue")
+      elif choice == "4":
+        console.clear()
+        console.print("\n[yellow]Calculating best transfers...[/yellow]")
+        find_best_transfers(config, ALLOW_TRANSFERS=3)
+        Prompt.ask("Press ENTER to continue")
+      elif choice == "8":
+        config.browser_update_config()
+        Prompt.ask("Press ENTER to continue")
+      elif choice == "9":
+        config_choices, idx_key_map = display_config(console, config)
+        choice = Prompt.ask("Key to update", choices=config_choices, show_choices=True)
+        if choice == "0":
+          continue
+        val = Prompt.ask("New value")
+        key = idx_key_map[int(choice)]
+        config.set(key, val)
+    except Exception as e:
+      console.clear()
+      console.print(f"[bold red]Error: {e}[/bold red]")
+      Prompt.ask("Press ENTER to continue")
   return 0

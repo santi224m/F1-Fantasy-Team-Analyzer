@@ -1,5 +1,7 @@
 import json
+import time
 from pathlib import Path
+from playwright.sync_api import sync_playwright
 
 class Config:
   def __init__(self, config_file="config.json"):
@@ -31,3 +33,24 @@ class Config:
     """Update a config value"""
     self.data[key] = val
     self.save()
+
+  def browser_update_config(self):
+    """
+    Update config values using browser
+    """
+    with sync_playwright() as p:
+      # Set up browser and go to F1 login page
+      browser = p.firefox.launch(headless=False)
+      page = browser.new_page()
+      page.goto("https://account.formula1.com/#/en/login")
+      # btn = page.locator("iframe[title='SP Consent Message'] button[title='ACCEPT ALL']").is_visible()
+      print(page.locator("iframe[title='SP Consent Message']").all())
+      print(page.locator("iframe[title='SP Consent Message'] button").all())
+
+      # Login
+      # res = page.get_by_label("Email address")
+      # page.get_by_label("Email address").fill("my email")
+      # page.get_by_label("Password").fill("mypassword")
+      # page.get_by_role("button", name="SIGN IN").click()
+
+      browser.close()
