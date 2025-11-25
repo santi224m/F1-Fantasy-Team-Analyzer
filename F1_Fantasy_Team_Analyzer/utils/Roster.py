@@ -7,10 +7,10 @@ class Roster:
     self.constructors = []
     self.cost = 0.0
     self.points = 0
-    self.projected = 0
     self.MAX_DRIVERS = 5
     self.MAX_CONSTRUCTORS = 2
     self.budget = 0.0
+    self.subs_left = 2
 
   def add_driver(self, driver):
     if len(self.drivers) == self.MAX_DRIVERS:
@@ -18,7 +18,6 @@ class Roster:
     self.drivers.append(driver)
     self.cost += driver.price
     self.points += driver.points
-    self.projected += driver.projected
 
   def add_constructor(self, constructor):
     if len(self.constructors) == self.MAX_CONSTRUCTORS:
@@ -26,10 +25,12 @@ class Roster:
     self.constructors.append(constructor)
     self.cost += constructor.price
     self.points += constructor.points
-    self.projected += constructor.projected
 
   def set_budget(self, budget):
     self.budget = budget
+  
+  def set_subs_left(self, subs):
+    self.subs_left = subs
 
   def print_table(self, console, *, team_balance=100.0):
     # ---------------------------------------------------------------------------- #

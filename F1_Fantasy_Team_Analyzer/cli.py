@@ -38,6 +38,26 @@ def display_main_menu(console):
                       border_style=border_style))
   return choices
 
+def display_standing_types(console):
+  """
+  Display a menu with the different standing types.
+  """
+  menu_text = """
+  [bold cyan]Statistic Types[/bold cyan]
+
+  [1] All Season
+  [2] Previous Race
+  """
+  choices = ["1", "2"]
+
+  title = f"Standing Types"
+  subtitle = f"Choose which standings you want"
+  border_style = "green"
+
+  console.print(Panel(menu_text, title=title, subtitle=subtitle,
+                      border_style=border_style))
+  return choices
+
 def display_config(console, config):
   """Display config file values"""
   table = Table(title="Config")
@@ -84,7 +104,13 @@ def main():
       print_team(console, config)
       Prompt.ask("Press ENTER to continue")
     elif choice == "2":
-      print_staindings(console, config)
+      console.clear()
+      choices = display_standing_types(console)
+      choice = Prompt.ask("Please select an option", choices=choices, show_choices=True)
+      if choice == "1":
+        print_staindings(console, config)
+      elif choice == "2":
+        print_staindings(console, config, method='last_race')
       Prompt.ask("Press ENTER to continue")
     elif choice == "3":
       console.clear()
@@ -93,8 +119,12 @@ def main():
       Prompt.ask("Press ENTER to continue")
     elif choice == "4":
       console.clear()
-      console.print("\n[yellow]Calculating best transfers...[/yellow]")
-      find_best_transfers(config)
+      choices = display_standing_types(console)
+      choice = Prompt.ask("Please select an option", choices=choices, show_choices=True)
+      if choice == "1":
+        find_best_transfers(console, config)
+      if choice == "2":
+        find_best_transfers(console, config, method='last_race')
       Prompt.ask("Press ENTER to continue")
     elif choice == "9":
       config_choices, idx_key_map = display_config(console, config)

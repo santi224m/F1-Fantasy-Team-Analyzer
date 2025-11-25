@@ -3,7 +3,7 @@ import requests
 from F1_Fantasy_Team_Analyzer.fetch_standings import fetch_standings
 from F1_Fantasy_Team_Analyzer.utils.Roster import Roster
 
-def get_my_team(config):
+def get_my_team(console, config, method=None):
   url = config.get('TEAM_URL')
   if url is None or url.strip() == "":
     raise Exception("Missing team url")
@@ -15,12 +15,14 @@ def get_my_team(config):
     res = requests.get(url, headers={'Cookie': user_cookie})
     data = res.json()['Data']['Value']['userTeam'][0]['playerid']
     team_balance = res.json()['Data']['Value']['userTeam'][0]['teambal']
+    subs_left = res.json()['Data']['Value']['userTeam'][0]['team_info']['userSubsleft']
   except:
     print("Error fetching team data. Try updating cookie.")
     exit()
-  drivers, constructors = fetch_standings(config)
+  drivers, constructors = fetch_standings(console, config, method=method)
   team = Roster()
   team.set_budget(team_balance)
+  team.set_subs_left(subs_left)
 
   for member in data:
     id = member['id']
@@ -34,7 +36,7 @@ def get_my_team(config):
   return team
 
 def print_team(console, config):
-  my_team = get_my_team(config)
+  my_team = get_my_team(console, config)
   my_team_balance = my_team.cost + my_team.budget - .1
   console.clear()
   my_team.print_table(console, team_balance=my_team_balance)

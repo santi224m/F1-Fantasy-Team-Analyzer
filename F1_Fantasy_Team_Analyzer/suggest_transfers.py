@@ -1,6 +1,4 @@
-from sys import argv
 
-import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
@@ -8,59 +6,9 @@ from F1_Fantasy_Team_Analyzer.find_best_team import find_top_team
 from F1_Fantasy_Team_Analyzer.my_team import get_my_team
 from F1_Fantasy_Team_Analyzer.fetch_standings import fetch_standings
 
-def find_best_transfers(config, *, ALLOW_TRANSFERS=2, COST_CAP=100.0):
-  drivers, constructors = fetch_standings(config)
-  my_team = get_my_team(config)
-  if '--custom' in argv:
-    if '--csv' in argv:
-      predicted_standings = pd.read_csv('src/csv/predicted_standings.csv', index_col='Driver')
-    my_team.points = 0
-    my_team_d_ids = set([d.id for d in my_team.drivers])
-    my_team_c_ids = set([c.id for c in my_team.constructors])
-    pos_map = {
-      1: 47,
-      2: 35,
-      3: 29,
-      4: 22,
-      5: 22,
-      6: 17,
-      7: 15,
-      8: 15,
-      9: 13,
-      10: 12,
-      11: 10,
-      12: 7,
-      13: 6,
-      14: 5,
-      15: 2,
-      16: 2,
-      17: 1,
-      18: -2,
-      19: -16,
-      20: -20,
-      99: -1000 # For drivers you don't want to be suggested
-    }
-    # Reset contructors points
-    double_points = 0 # Add tops drivers points twice for 2x driver
-    for id in constructors.keys():
-      constructors[id].points = 0
-    for id, driver in drivers.items():
-      if '--csv' in argv:
-        pos = predicted_standings.loc[driver.name].Pos
-      else:
-        pos = int(input(f"{driver.name} Pos: "))
-      drivers[id].points = pos_map[pos]
-      constructors[drivers[id].team_id].points += pos_map[pos]
-      if id in my_team_d_ids:
-        my_team.points += pos_map[pos]
-        if pos_map[pos] > double_points:
-          double_points = pos_map[pos]
-    # Add contructor points back to my team
-    for id, constructor in constructors.items():
-      if id in my_team_c_ids:
-        my_team.points += constructor.points
-    # Add double points to 2x driver
-    my_team.points += double_points
+def find_best_transfers(console, config, *, method=None):
+  drivers, constructors = fetch_standings(console, config, method=method)
+  my_team = get_my_team(console, config, method=method)
   team_balance = my_team.cost + my_team.budget - .1
   top_teams = find_top_team(config, RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
@@ -71,7 +19,7 @@ def find_best_transfers(config, *, ALLOW_TRANSFERS=2, COST_CAP=100.0):
       best_team = team
       break
 
-    if len(transfers_needed) <= ALLOW_TRANSFERS and team.points > my_team.points:
+    if len(transfers_needed) <= my_team.subs_left and team.points > my_team.points:
       best_team = team
       break
 

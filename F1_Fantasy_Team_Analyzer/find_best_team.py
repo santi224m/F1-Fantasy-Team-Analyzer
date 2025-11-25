@@ -53,8 +53,6 @@ def find_top_team(config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUST
                 if drivers[driver_id].points > double_points:
                     double_points = drivers[driver_id].points
                 roster.add_driver(drivers[driver_id])
-            if '--custom' in argv:
-                roster.points += double_points
 
             # Add constructors to roster
             for constructor_id in team[1]:
