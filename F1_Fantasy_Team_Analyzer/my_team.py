@@ -16,8 +16,7 @@ def get_my_team(config):
     data = res.json()['Data']['Value']['userTeam'][0]['playerid']
     team_balance = res.json()['Data']['Value']['userTeam'][0]['teambal']
   except:
-    print("Error fetching team data. Try resetting auth cookie in '.env' file and make sure that MY_TEAM_URL is correct.")
-    print("MY_TEAM_URL should have https://fantasy.formula1.com/services/user/gameplay/{SOME-UUID}/getteam/{SOME-NUMBER}/{SOME-NUMBER}/{SOME-NUMBER}/{SOME-NUMBER}?buster={SOME-NUMBER} format.")
+    print("Error fetching team data. Try updating cookie.")
     exit()
   drivers, constructors = fetch_standings(config)
   team = Roster()

@@ -99,9 +99,22 @@ def main():
     elif choice == "9":
       config_choices, idx_key_map = display_config(console, config)
       choice = Prompt.ask("Key to update", choices=config_choices, show_choices=True)
+      config_helper = {}
+      config_helper["DRIVER_STANDINGS_URL"] = {
+        "find_url": "https://fantasy.formula1.com/en/create-team",
+        "search_term": "fantasy.formula1.com/feeds/drivers"
+      }
+      config_helper['TEAM_URL'] = {
+        'find_url': 'https://fantasy.formula1.com/en/my-team',
+        'search_term': 'getteam'
+      }
+      config_helper['USER_COOKIE'] = config_helper['TEAM_URL']
       if choice == "0":
         continue
-      val = Prompt.ask("New value")
+      
       key = idx_key_map[int(choice)]
+      console.print(f"Found here: {config_helper[key]['find_url']}")
+      console.print(f"Search term: {config_helper[key]['search_term']}")
+      val = Prompt.ask("New value")
       config.set(key, val)
   return 0
