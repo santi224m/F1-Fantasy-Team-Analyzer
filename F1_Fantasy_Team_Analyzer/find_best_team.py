@@ -1,7 +1,6 @@
 from itertools import combinations, product
 from contextlib import nullcontext
 
-# from rich.progress import Progress
 from rich.progress import (
     BarColumn,
     Progress,
@@ -12,11 +11,11 @@ from rich.progress import (
 from F1_Fantasy_Team_Analyzer.fetch_standings import fetch_standings
 from F1_Fantasy_Team_Analyzer.utils.Roster import Roster
 
-def find_top_team(console, config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STANDINGS=None):
+def find_top_team(console, config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STANDINGS=None, method=None):
     if CUSTOM_STANDINGS:
         drivers, constructors = CUSTOM_STANDINGS
     else:
-        drivers, constructors = fetch_standings(console, config)
+        drivers, constructors = fetch_standings(console, config, method=method)
 
     # ---------------------------------------------------------------------------- #
     #                   CREATE COMBINATIONS OF ALL POSSIBLE TEAMS                  #
@@ -66,6 +65,6 @@ def find_top_team(console, config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=10
         top_team = sorted(valid_rosters, key=lambda r: r.get_points(), reverse=True)
     return top_team
 
-def print_top_team(console, config):
-    top_team = find_top_team(console, config, VERBOSE=True)
+def print_top_team(console, config, *, method=None):
+    top_team = find_top_team(console, config, VERBOSE=True, method=method)
     top_team.print_table(console)

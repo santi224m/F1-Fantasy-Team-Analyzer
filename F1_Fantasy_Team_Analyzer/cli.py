@@ -115,8 +115,11 @@ def main():
       Prompt.ask("Press ENTER to continue")
     elif choice == "3":
       console.clear()
-      console.print("\n[yellow]Calculating best team...[/yellow]")
-      print_top_team(console, config)
+      choices, methods = display_standing_types(console)
+      choice = Prompt.ask("Please select an option", choices=choices, show_choices=True)
+      choice_idx = int(choice) - 1
+      method = methods[choice_idx]
+      print_top_team(console, config, method=method)
       Prompt.ask("Press ENTER to continue")
     elif choice == "4":
       console.clear()
