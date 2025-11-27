@@ -10,7 +10,7 @@ def find_best_transfers(console, config, *, method=None):
   drivers, constructors = fetch_standings(console, config, method=method)
   my_team = get_my_team(console, config, method=method)
   team_balance = my_team.cost + my_team.budget - .1
-  top_teams = find_top_team(config, RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
+  top_teams = find_top_team(console, config, RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
   for team in top_teams:
     transfers_needed = team.diff(my_team)

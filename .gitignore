@@ -6,3 +6,4 @@ src/csv/predicted_standings.csv
 src/csv/.*
 
 config.json
+points_history.pickle

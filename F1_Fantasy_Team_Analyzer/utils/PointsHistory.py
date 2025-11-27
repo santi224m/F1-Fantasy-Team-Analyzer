@@ -1,3 +1,6 @@
+import pickle
+from datetime import datetime, timedelta
+from pathlib import Path
 import requests
 import pandas as pd
 
@@ -12,6 +15,7 @@ from F1_Fantasy_Team_Analyzer.Config import Config
 
 class PointsHistory:
   def __init__(self, drivers, constructors, *, console=None):
+    self.save_file = Path("points_history.pickle")
     self.drivers = drivers
     self.constructors = constructors
     self.console = console
@@ -25,17 +29,46 @@ class PointsHistory:
     self.buster = drivers_url.split('buster=')[1]
     self.next_race_id = int(drivers_url.split('_en')[0].split('/')[-1])
     self.previous_race_id = self.next_race_id - 1
-    self.drivers_history = pd.DataFrame()
-    self.constructors_history = pd.DataFrame()
+    self.history = pd.DataFrame()
     self.load_history()
+
+  def _save(self):
+    """
+    Save history as a pickle
+    """
+    save = {
+      'timestamp': datetime.now(),
+      'history': self.history
+    }
+    with open(self.save_file, 'wb') as f:
+      pickle.dump(save, f, pickle.HIGHEST_PROTOCOL)
+
+  def _load(self):
+    """
+    Try to load pickle file.
+    Return True if successful, False otherwise.
+    Max pickle file age: 1 Hour
+    """
+    if self.save_file.exists():
+      with open(self.save_file, 'rb') as f:
+        save = pickle.load(f)
+        # Check that pickle is less than 1 Hour old
+        valid_age = datetime.now() - timedelta(hours=1)
+        if save['timestamp'] < valid_age:
+          return False
+        self.history = save['history']
+    else:
+      return False
 
   def load_history(self):
     """
     Load history from JSON file if it exists
     or get from API ifit does not exist.
     """
-    # TODO: Check if history JSON exists and load it if it does
-    self.fetch_history()
+    res = self._load()
+    if res is False:
+      self.fetch_history()
+      self._save()
 
   def fetch_history(self):
     """
@@ -90,14 +123,14 @@ class PointsHistory:
           driver_rows.append(row)
         progress.update(task1, advance=1)
     df = pd.DataFrame(driver_rows)
-    self.drivers_history = df
+    self.history = df
 
   def get_previous_race_points(self):
     """
     Return driver and constructor points for previous race.
     """
     # Get history stats for previous race
-    prev = self.drivers_history[self.drivers_history['GamedayId'] == self.previous_race_id]
+    prev = self.history[self.history['GamedayId'] == self.previous_race_id]
     # Update drivers points with previous race points
     for driver in self.drivers.values():
       driver.points = prev[prev['Id'] == driver.id].Points.iloc[0]
