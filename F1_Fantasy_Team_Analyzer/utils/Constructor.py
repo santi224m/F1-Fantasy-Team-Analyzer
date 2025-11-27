@@ -1,7 +1,6 @@
 class Constructor:
-  def __init__(self, id, name, price, points, projected):
+  def __init__(self, id, name, price, points):
     self.id = id
     self.name = name
     self.price = price
     self.points = points
-    self.projected = projected

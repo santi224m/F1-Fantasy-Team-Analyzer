@@ -1,54 +1,49 @@
-import os
-from sys import argv
-
 import requests
-from rich.console import Console
 from rich.table import Table
 
-from utils.Driver import Driver
-from utils.Constructor import Constructor
+from F1_Fantasy_Team_Analyzer.utils.Driver import Driver
+from F1_Fantasy_Team_Analyzer.utils.Constructor import Constructor
+from F1_Fantasy_Team_Analyzer.utils.PointsHistory import PointsHistory
 
-from dotenv import load_dotenv
-
-def fetch_standings():
-  # For drivers who have double entries, record which ID not to use
-  # Ex: Yuki has an ID for Racing Bulls an Red Bull, so exclude Racing Bulls Yuki
-  EXCLUDE_DRIVERS_ID= set([
-    "130",    # Yuki Tsunoda - Racing Bulls
-    "114",    # Liam Lawson - Red Bull Racing
-    "15",    # Jack Doohan - Alpine
-  ])
-
-  load_dotenv()
-  url = os.environ.get('DRIVER_STANDINGS_URL')
+def fetch_standings(console, config, *, method=None):
+  # Get all drivers and constructors
+  url = config.get('DRIVER_STANDINGS_URL')
+  if url is None or url.strip() == "":
+    raise Exception("Missing driver standings url. Please update config.")
   res = requests.get(url)
   fetch_res = res.json()['Data']['Value']
-  drivers_json = [res for res in fetch_res if res['PositionName'] == "DRIVER"]
+  drivers_json = [res for res in fetch_res if res['PositionName'] == "DRIVER" and res['IsActive'] == "1"]
   constructors_json = [res for res in fetch_res if res['PositionName'] == "CONSTRUCTOR"]
 
+  # Extract drivers and constructors from JSON
   drivers = {}
   constructors = {}
-
   for driver in drivers_json:
-    if driver['PlayerId'] in EXCLUDE_DRIVERS_ID: continue
-    d = Driver(driver['PlayerId'], driver['TeamId'], driver['FUllName'], driver['Value'], float(driver['OverallPpints']), float(driver['ProjectedOverallPpints']))
+    d = Driver(driver['PlayerId'], driver['TeamId'], driver['FUllName'], driver['Value'], float(driver['OverallPpints']))
     drivers[d.id] = d
-
   for constructor in constructors_json:
-    c = Constructor(constructor['PlayerId'], constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']), float(constructor['ProjectedOverallPpints']))
+    c = Constructor(constructor['PlayerId'], constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']))
     constructors[c.id] = c
+
+  PH = None
+  if method is not None:
+    PH = PointsHistory(drivers=drivers, constructors=constructors,
+                       console=console)
+
+  if isinstance(PH, PointsHistory):
+    if method == 'last_race':
+      drivers, constructors = PH.get_previous_race_points()
+    elif method == 'four_avg_drop_one':
+      drivers, constructors = PH.get_four_avg_drop_one()
 
   return (drivers, constructors)
 
-if __name__ == "__main__":
-  drivers, constructors = fetch_standings()
+def print_staindings(console, config, *, method=None):
+  console.print("\n[yellow]Fetching standings...[/yellow]")
+  drivers, constructors = fetch_standings(console, config, method=method)
 
-  if '--projected' in argv:
-    drivers_standings = sorted(drivers.values(), key=lambda d: d.projected, reverse=True)
-    constructors_standings = sorted(constructors.values(), key=lambda c: c.projected, reverse=True)
-  else:
-    drivers_standings = sorted(drivers.values(), key=lambda d: d.points, reverse=True)
-    constructors_standings = sorted(constructors.values(), key=lambda c: c.points, reverse=True)
+  drivers_standings = sorted(drivers.values(), key=lambda d: d.points, reverse=True)
+  constructors_standings = sorted(constructors.values(), key=lambda c: c.points, reverse=True)
 
   # ---------------------------------------------------------------------------- #
   #                                 DRIVERS TABLE                                #
@@ -58,7 +53,6 @@ if __name__ == "__main__":
   drivers_table.add_column("Name", justify="center", style="grey100", no_wrap=True)
   drivers_table.add_column("Price", justify="right", style="dark_olive_green2")
   drivers_table.add_column("Points", justify="center", style="dark_slate_gray2")
-  drivers_table.add_column("Projected Points", justify="center", style="dark_slate_gray2")
 
   for idx, driver in enumerate(drivers_standings):
     drivers_table.add_row(
@@ -66,7 +60,6 @@ if __name__ == "__main__":
       driver.name,
       f"${driver.price}M",
       str(driver.points),
-      str(driver.projected)
       )
 
   # ---------------------------------------------------------------------------- #
@@ -77,7 +70,6 @@ if __name__ == "__main__":
   constructors_table.add_column("Name", justify="center", style="grey100", no_wrap=True)
   constructors_table.add_column("Price", justify="right", style="dark_olive_green2")
   constructors_table.add_column("Points", justify="center", style="dark_slate_gray2")
-  constructors_table.add_column("Projected Points", justify="center", style="dark_slate_gray2")
 
   for idx, constructor in enumerate(constructors_standings):
     constructors_table.add_row(
@@ -85,10 +77,9 @@ if __name__ == "__main__":
       constructor.name,
       f"${constructor.price}M",
       str(constructor.points),
-      str(constructor.projected)
     )
 
   # Print tables
-  console = Console()
+  console.clear()
   console.print(drivers_table)
   console.print(constructors_table)

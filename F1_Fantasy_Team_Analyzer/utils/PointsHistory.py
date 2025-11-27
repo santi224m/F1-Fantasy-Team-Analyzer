@@ -1,0 +1,169 @@
+import pickle
+from datetime import datetime, timedelta
+from pathlib import Path
+import requests
+import pandas as pd
+
+from rich.progress import (
+    BarColumn,
+    Progress,
+    TextColumn,
+    TimeRemainingColumn,
+)
+
+from F1_Fantasy_Team_Analyzer.Config import Config
+
+class PointsHistory:
+  def __init__(self, drivers, constructors, *, console=None):
+    self.save_file = Path("points_history.pickle")
+    self.drivers = drivers
+    self.constructors = constructors
+    self.console = console
+    self.config = Config()
+
+    # Extract buster from drivers url
+    drivers_url = self.config.get('DRIVER_STANDINGS_URL')
+    if drivers_url is None or drivers_url.strip() == "":
+      raise Exception("Missing driver standings url. Please update config.")
+    
+    self.buster = drivers_url.split('buster=')[1]
+    self.next_race_id = int(drivers_url.split('_en')[0].split('/')[-1])
+    self.previous_race_id = self.next_race_id - 1
+    self.history = pd.DataFrame()
+    self.load_history()
+
+  def _save(self):
+    """
+    Save history as a pickle
+    """
+    save = {
+      'timestamp': datetime.now(),
+      'history': self.history
+    }
+    with open(self.save_file, 'wb') as f:
+      pickle.dump(save, f, pickle.HIGHEST_PROTOCOL)
+
+  def _load(self):
+    """
+    Try to load pickle file.
+    Return True if successful, False otherwise.
+    Max pickle file age: 1 Hour
+    """
+    if self.save_file.exists():
+      with open(self.save_file, 'rb') as f:
+        save = pickle.load(f)
+        # Check that pickle is less than 1 Hour old
+        valid_age = datetime.now() - timedelta(hours=1)
+        if save['timestamp'] < valid_age:
+          return False
+        self.history = save['history']
+    else:
+      return False
+
+  def load_history(self):
+    """
+    Load history from JSON file if it exists
+    or get from API ifit does not exist.
+    """
+    res = self._load()
+    if res is False:
+      self.fetch_history()
+      self._save()
+
+  def fetch_history(self):
+    """
+    Fetch points history from F1 Fantasy API
+    and store it in a pandas dataframe.
+    Columns: ['DriverId', 'GamedayId', 'PlayerValue', 'RaceName', 'DriverName', 'Points']
+    """
+    driver_rows = []
+    race_id_name_dict = {}
+
+    if self.console:
+      self.console.clear()
+
+    context_manager = Progress(
+      TextColumn("[bold grey100]Fetching points for all races this season...",justify="right"),
+      BarColumn(bar_width=None),
+      "[progress.description]{task.completed:,}/{task.total:,} stats",
+      "•",
+      TimeRemainingColumn(),
+      )
+
+    driver_ids = [key for key in self.drivers.keys()]
+    constructor_ids = [key for key in self.constructors.keys()]
+    all_ids = driver_ids + constructor_ids
+    with context_manager as progress:
+      task1 = progress.add_task("[grey100]Fetching drivers points...", total=30)
+      for id in all_ids:
+        res = requests.get(f"https://fantasy.formula1.com/feeds/popup/playerstats_{id}.json?buster={self.buster}")
+        game_stats = res.json()['Value']['GamedayWiseStats']
+        for game in game_stats:
+          row = {}
+
+          if len(race_id_name_dict.keys()) == 0:
+            for race in res.json()['Value']['FixtureWiseStats']:
+              race_id = race['GamedayId']
+              for session in race['RaceDayWise']:
+                if session['SessionType'] == 'Race':
+                  race_id_name_dict[race_id] = session['MeetingName']
+
+          row['Id'] = id
+          row['GamedayId'] = game['GamedayId']
+          row['PlayerValue'] = game['PlayerValue']
+          row['RaceName'] = race_id_name_dict[game['GamedayId']]
+          if id in driver_ids:
+            row['Name'] = self.drivers[id].name
+          else:
+            row['Name'] = self.constructors[id].name
+          if len(game['StatsWise']) > 0:
+            row['Points'] = game['StatsWise'][0]['Value']
+          else:
+            row['Points'] = 0
+          driver_rows.append(row)
+        progress.update(task1, advance=1)
+    df = pd.DataFrame(driver_rows)
+    self.history = df
+
+  def get_previous_race_points(self):
+    """
+    Return driver and constructor points for previous race.
+    """
+    # Get history stats for previous race
+    prev = self.history[self.history['GamedayId'] == self.previous_race_id]
+    # Update drivers point's with previous race points
+    for driver in self.drivers.values():
+      driver.points = prev[prev['Id'] == driver.id].Points.iloc[0]
+
+    # Update constructor's points with previous race points
+    for constructor in self.constructors.values():
+      constructor.points = prev[prev['Id'] == constructor.id].Points.iloc[0]
+
+    return (self.drivers, self.constructors)
+
+  def get_four_avg_drop_one(self):
+    """
+    For each driver, drop their lowest points race of the last four races
+    and average the remaining three.
+    """
+    past_four = self.history[(self.history['GamedayId'] >= (self.previous_race_id - 3)) &
+                             (self.history['GamedayId'] < self.next_race_id)]
+    best_three = (past_four.sort_values('Points')
+              .groupby('Id')
+              .apply(lambda x: x.iloc[1:] if len(x) > 1 else x)
+              .reset_index(drop=True))
+    driver_avg = best_three.groupby('Id')['Points'].mean()
+    history_df = self.history.copy()
+    # Only want one row per driver/constructor
+    history_df = history_df[history_df['GamedayId'] == self.previous_race_id]
+    history_df = history_df[['Id', 'Name']]
+    history_df = pd.merge(history_df, driver_avg, how='inner', on='Id')
+    # Update driver's points with average race points
+    for driver in self.drivers.values():
+      driver.points = round(history_df[history_df['Id'] == driver.id].Points.iloc[0])
+
+    # Update constructor's points with average race points
+    for constructor in self.constructors.values():
+      constructor.points = round(history_df[history_df['Id'] == constructor.id].Points.iloc[0])
+
+    return (self.drivers, self.constructors)

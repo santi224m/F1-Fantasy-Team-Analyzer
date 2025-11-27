@@ -1,9 +1,6 @@
-from sys import argv
-
 from itertools import combinations, product
 from contextlib import nullcontext
 
-# from rich.progress import Progress
 from rich.progress import (
     BarColumn,
     Progress,
@@ -11,14 +8,14 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from fetch_standings import fetch_standings
-from utils.Roster import Roster
+from F1_Fantasy_Team_Analyzer.fetch_standings import fetch_standings
+from F1_Fantasy_Team_Analyzer.utils.Roster import Roster
 
-def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STANDINGS=None):
+def find_top_team(console, config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STANDINGS=None, method=None):
     if CUSTOM_STANDINGS:
         drivers, constructors = CUSTOM_STANDINGS
     else:
-        drivers, constructors = fetch_standings()
+        drivers, constructors = fetch_standings(console, config, method=method)
 
     # ---------------------------------------------------------------------------- #
     #                   CREATE COMBINATIONS OF ALL POSSIBLE TEAMS                  #
@@ -48,13 +45,8 @@ def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STAND
             roster = Roster()
 
             # Add drivers to roster
-            double_points = 0
             for driver_id in team[0]:
-                if drivers[driver_id].points > double_points:
-                    double_points = drivers[driver_id].points
                 roster.add_driver(drivers[driver_id])
-            if '--custom' in argv:
-                roster.points += double_points
 
             # Add constructors to roster
             for constructor_id in team[1]:
@@ -68,12 +60,11 @@ def find_top_team(*, VERBOSE=False, RETURN_COUNT=0, COST_CAP=100.0, CUSTOM_STAND
                 progress.update(task1, advance=1)
 
     if RETURN_COUNT < len(valid_rosters):
-        top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)[RETURN_COUNT]
+        top_team = sorted(valid_rosters, key=lambda r: r.get_points(), reverse=True)[RETURN_COUNT]
     else:
-        top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)
+        top_team = sorted(valid_rosters, key=lambda r: r.get_points(), reverse=True)
     return top_team
 
-if __name__ == "__main__":
-    top_team = find_top_team(VERBOSE=True)
-    print()
-    top_team.print_table()
+def print_top_team(console, config, *, method=None):
+    top_team = find_top_team(console, config, VERBOSE=True, method=method)
+    top_team.print_table(console)

@@ -7,10 +7,11 @@ class Roster:
     self.constructors = []
     self.cost = 0.0
     self.points = 0
-    self.projected = 0
     self.MAX_DRIVERS = 5
     self.MAX_CONSTRUCTORS = 2
     self.budget = 0.0
+    self.subs_left = 2
+    self.DRS_boost = None
 
   def add_driver(self, driver):
     if len(self.drivers) == self.MAX_DRIVERS:
@@ -18,7 +19,9 @@ class Roster:
     self.drivers.append(driver)
     self.cost += driver.price
     self.points += driver.points
-    self.projected += driver.projected
+    # Keep track of driver with highest points
+    if self.DRS_boost is None or driver.points > self.DRS_boost.points:
+      self.DRS_boost = driver
 
   def add_constructor(self, constructor):
     if len(self.constructors) == self.MAX_CONSTRUCTORS:
@@ -26,12 +29,22 @@ class Roster:
     self.constructors.append(constructor)
     self.cost += constructor.price
     self.points += constructor.points
-    self.projected += constructor.projected
 
   def set_budget(self, budget):
     self.budget = budget
+  
+  def set_subs_left(self, subs):
+    self.subs_left = subs
+  
+  def get_points(self):
+    """
+    Return team points including DRS boost points.
+    """
+    if self.DRS_boost is None:
+      return self.points
+    return self.points + self.DRS_boost.points
 
-  def print_table(self, *, team_balance=100.0):
+  def print_table(self, console, *, team_balance=100.0):
     # ---------------------------------------------------------------------------- #
     #                                 DRIVERS TABLE                                #
     # ---------------------------------------------------------------------------- #
@@ -43,7 +56,13 @@ class Roster:
     drivers_table.add_column("Points", justify="center", style="dark_slate_gray2")
 
     for idx, driver in enumerate(sorted(self.drivers, key=lambda driver: driver.points, reverse=True)):
-      drivers_table.add_row(str(idx+1), driver.name, f"${driver.price:.1f}M", str(driver.points))
+      if self.DRS_boost is not None:
+        pts = driver.points if driver.name != self.DRS_boost.name else driver.points * 2
+        name = driver.name if driver.name != self.DRS_boost.name else f"{driver.name} (2X)"
+      else:
+        pts = driver.points
+        name = driver.name
+      drivers_table.add_row(str(idx+1), name, f"${driver.price:.1f}M", str(pts))
 
     # ---------------------------------------------------------------------------- #
     #                              CONSTRUCTORS TABLE                              #
@@ -65,12 +84,11 @@ class Roster:
 
     stats_table.add_column("Total Cost", justify="center", style="dark_olive_green2", no_wrap=True)
     stats_table.add_column("Total Points", justify="center", style="dark_slate_gray2")
-    stats_table.add_row(f"${self.cost:.1f}M/${team_balance:.1f}M", str(self.points))
+    stats_table.add_row(f"${self.cost:.1f}M/${team_balance:.1f}M", str(self.get_points()))
 
     # ---------------------------------------------------------------------------- #
     #                                 PRINT TABLES                                 #
     # ---------------------------------------------------------------------------- #
-    console = Console()
     console.print(drivers_table)
     print()
     console.print(constructors_table)
