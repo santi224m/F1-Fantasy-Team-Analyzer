@@ -3,6 +3,7 @@ from rich.table import Table
 
 from F1_Fantasy_Team_Analyzer.utils.Driver import Driver
 from F1_Fantasy_Team_Analyzer.utils.Constructor import Constructor
+from F1_Fantasy_Team_Analyzer.utils.PointsHistory import PointsHistory
 
 def fetch_standings(console, config, *, method=None):
   # Get all drivers and constructors
@@ -25,29 +26,9 @@ def fetch_standings(console, config, *, method=None):
     constructors[c.id] = c
 
   if method == 'last_race':
-    # Get buster and next race id
-    buster = url.split('buster=')[1]
-    race_id = int(url.split('_en')[0].split('/')[-1])
-    previous_race_id = race_id - 1
-    console.clear()
-    console.print("\n[yellow]Fetching driver's points for the last race...[/yellow]")
-    for driver_id, driver in drivers.items():
-      res = requests.get(f"https://fantasy.formula1.com/feeds/popup/playerstats_{driver_id}.json?buster={buster}")
-      for gameday in res.json()['Value']['GamedayWiseStats']:
-        if gameday['GamedayId'] == previous_race_id:
-          last_race_points = gameday['StatsWise'][0]['Value']
-          console.print(f"{driver.name}: {last_race_points}")
-          driver.points = last_race_points
-    console.clear()
-    console.print("\n[yellow]Fetching constructors's points for the last race...[/yellow]")
-    for constructor_id, constructor in constructors.items():
-      res = requests.get(f"https://fantasy.formula1.com/feeds/popup/playerstats_{constructor_id}.json?buster=20251125031941")
-      for gameday in res.json()['Value']['GamedayWiseStats']:
-        if gameday['GamedayId'] == 22:
-          last_race_points = gameday['StatsWise'][0]['Value']
-          console.print(f"{constructor.name}: {last_race_points}")
-          constructor.points = last_race_points
-    console.clear()
+    PH = PointsHistory(drivers=drivers, constructors=constructors,
+                       console=console)
+    drivers, constructors = PH.get_previous_race_points()
 
   return (drivers, constructors)
 
