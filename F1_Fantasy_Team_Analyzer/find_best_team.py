@@ -1,5 +1,3 @@
-from sys import argv
-
 from itertools import combinations, product
 from contextlib import nullcontext
 
@@ -48,10 +46,7 @@ def find_top_team(console, config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=10
             roster = Roster()
 
             # Add drivers to roster
-            double_points = 0
             for driver_id in team[0]:
-                if drivers[driver_id].points > double_points:
-                    double_points = drivers[driver_id].points
                 roster.add_driver(drivers[driver_id])
 
             # Add constructors to roster
@@ -66,9 +61,9 @@ def find_top_team(console, config, *, VERBOSE=False, RETURN_COUNT=0, COST_CAP=10
                 progress.update(task1, advance=1)
 
     if RETURN_COUNT < len(valid_rosters):
-        top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)[RETURN_COUNT]
+        top_team = sorted(valid_rosters, key=lambda r: r.get_points(), reverse=True)[RETURN_COUNT]
     else:
-        top_team = sorted(valid_rosters, key=lambda r: r.points, reverse=True)
+        top_team = sorted(valid_rosters, key=lambda r: r.get_points(), reverse=True)
     return top_team
 
 def print_top_team(console, config):

@@ -1,4 +1,3 @@
-
 from rich.console import Console
 from rich.table import Table
 
@@ -9,6 +8,7 @@ from F1_Fantasy_Team_Analyzer.fetch_standings import fetch_standings
 def find_best_transfers(console, config, *, method=None):
   drivers, constructors = fetch_standings(console, config, method=method)
   my_team = get_my_team(console, config, method=method)
+  best_team = my_team
   team_balance = my_team.cost + my_team.budget - .1
   top_teams = find_top_team(console, config, RETURN_COUNT=1000000, COST_CAP=team_balance, CUSTOM_STANDINGS=(drivers, constructors))
 
@@ -51,7 +51,7 @@ def find_best_transfers(console, config, *, method=None):
   points_table = Table(title="Points")
   points_table.add_column("Old Team", justify="center", style="bright_red", no_wrap=True)
   points_table.add_column("New Team", justify="center", style="green1", no_wrap=True)
-  points_table.add_row(str(my_team.points), str(best_team.points))
+  points_table.add_row(str(my_team.get_points()), str(best_team.get_points()))
 
   console.print(transfer_table)
   console.print(points_table)
