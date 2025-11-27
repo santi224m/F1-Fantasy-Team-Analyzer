@@ -25,10 +25,16 @@ def fetch_standings(console, config, *, method=None):
     c = Constructor(constructor['PlayerId'], constructor['DisplayName'], constructor['Value'], float(constructor['OverallPpints']))
     constructors[c.id] = c
 
-  if method == 'last_race':
+  PH = None
+  if method is not None:
     PH = PointsHistory(drivers=drivers, constructors=constructors,
                        console=console)
-    drivers, constructors = PH.get_previous_race_points()
+
+  if isinstance(PH, PointsHistory):
+    if method == 'last_race':
+      drivers, constructors = PH.get_previous_race_points()
+    elif method == 'four_avg_drop_one':
+      drivers, constructors = PH.get_four_avg_drop_one()
 
   return (drivers, constructors)
 

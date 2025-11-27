@@ -47,8 +47,10 @@ def display_standing_types(console):
 
   [1] All Season
   [2] Previous Race
+  [3] 4 Race Average (Drop worst result)
   """
-  choices = ["1", "2"]
+  choices = ["1", "2", "3"]
+  methods = [None, 'last_race', 'four_avg_drop_one']
 
   title = f"Standing Types"
   subtitle = f"Choose which standings you want"
@@ -56,7 +58,7 @@ def display_standing_types(console):
 
   console.print(Panel(menu_text, title=title, subtitle=subtitle,
                       border_style=border_style))
-  return choices
+  return choices, methods
 
 def display_config(console, config):
   """Display config file values"""
@@ -105,12 +107,11 @@ def main():
       Prompt.ask("Press ENTER to continue")
     elif choice == "2":
       console.clear()
-      choices = display_standing_types(console)
+      choices, methods = display_standing_types(console)
       choice = Prompt.ask("Please select an option", choices=choices, show_choices=True)
-      if choice == "1":
-        print_staindings(console, config)
-      elif choice == "2":
-        print_staindings(console, config, method='last_race')
+      choice_idx = int(choice) - 1
+      method = methods[choice_idx]
+      print_staindings(console, config, method=method)
       Prompt.ask("Press ENTER to continue")
     elif choice == "3":
       console.clear()
@@ -119,12 +120,11 @@ def main():
       Prompt.ask("Press ENTER to continue")
     elif choice == "4":
       console.clear()
-      choices = display_standing_types(console)
+      choices, methods = display_standing_types(console)
       choice = Prompt.ask("Please select an option", choices=choices, show_choices=True)
-      if choice == "1":
-        find_best_transfers(console, config)
-      if choice == "2":
-        find_best_transfers(console, config, method='last_race')
+      choice_idx = int(choice) - 1
+      method = methods[choice_idx]
+      find_best_transfers(console, config, method=method)
       Prompt.ask("Press ENTER to continue")
     elif choice == "9":
       config_choices, idx_key_map = display_config(console, config)

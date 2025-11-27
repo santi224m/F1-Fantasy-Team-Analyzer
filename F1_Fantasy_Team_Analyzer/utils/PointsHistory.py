@@ -131,12 +131,39 @@ class PointsHistory:
     """
     # Get history stats for previous race
     prev = self.history[self.history['GamedayId'] == self.previous_race_id]
-    # Update drivers points with previous race points
+    # Update drivers point's with previous race points
     for driver in self.drivers.values():
       driver.points = prev[prev['Id'] == driver.id].Points.iloc[0]
 
-    # Update constructors points with previous race points
+    # Update constructor's points with previous race points
     for constructor in self.constructors.values():
       constructor.points = prev[prev['Id'] == constructor.id].Points.iloc[0]
+
+    return (self.drivers, self.constructors)
+
+  def get_four_avg_drop_one(self):
+    """
+    For each driver, drop their lowest points race of the last four races
+    and average the remaining three.
+    """
+    past_four = self.history[(self.history['GamedayId'] >= (self.previous_race_id - 3)) &
+                             (self.history['GamedayId'] < self.next_race_id)]
+    best_three = (past_four.sort_values('Points')
+              .groupby('Id')
+              .apply(lambda x: x.iloc[1:] if len(x) > 1 else x)
+              .reset_index(drop=True))
+    driver_avg = best_three.groupby('Id')['Points'].mean()
+    history_df = self.history.copy()
+    # Only want one row per driver/constructor
+    history_df = history_df[history_df['GamedayId'] == self.previous_race_id]
+    history_df = history_df[['Id', 'Name']]
+    history_df = pd.merge(history_df, driver_avg, how='inner', on='Id')
+    # Update driver's points with average race points
+    for driver in self.drivers.values():
+      driver.points = round(history_df[history_df['Id'] == driver.id].Points.iloc[0])
+
+    # Update constructor's points with average race points
+    for constructor in self.constructors.values():
+      constructor.points = round(history_df[history_df['Id'] == constructor.id].Points.iloc[0])
 
     return (self.drivers, self.constructors)
