@@ -48,9 +48,10 @@ def display_standing_types(console):
   [1] All Season
   [2] Previous Race
   [3] 4 Race Average (Drop worst result)
+  [4] Custom
   """
-  choices = ["1", "2", "3"]
-  methods = [None, 'last_race', 'four_avg_drop_one']
+  choices = ["1", "2", "3", "4"]
+  methods = [None, 'last_race', 'four_avg_drop_one', 'custom']
 
   title = f"Standing Types"
   subtitle = f"Choose which standings you want"
