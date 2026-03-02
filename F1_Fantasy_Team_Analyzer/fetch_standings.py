@@ -38,9 +38,6 @@ def fetch_standings(console, config, *, method=None):
       drivers, constructors = PH.get_four_avg_drop_one()
   
   if method == 'custom':
-    print("Using custom standings...")
-    print('Example driver: ', drivers['18'].__dict__)
-    print(drivers)
     drivers, constructors = choose_custom_ordering(console, drivers, constructors)
 
   return (drivers, constructors)
@@ -141,7 +138,5 @@ def choose_custom_ordering(console, drivers, constructors):
       driver_team_id = custom_drivers[driver_id].team_id
       constructors[driver_team_id].points += curr_points
       curr_points -= 1
-
-      # Prompt.ask("Press ENTER to continue")
 
   return (custom_drivers, constructors)
